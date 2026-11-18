@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#070720">
+<title>🚀 Космическая Ферма: Ultimate Edition</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: radial-gradient(ellipse at top, #18184a 0%, #090926 55%, #02020a 100%);
+    color: #fff; min-height: 100vh; min-height: 100dvh;
+    overflow: hidden; user-select: none; -webkit-user-select: none;
+    touch-action: manipulation; display: flex; flex-direction: column;
+  }
+
+  #stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite ease-in-out; }
+  @keyframes twinkle { 0%,100% { opacity: 0.2; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1.2); } }
+
+  .app {
+    position: relative; z-index: 1; max-width: 500px; margin: 0 auto;
+    padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; width: 100%;
+    height: 100dvh;
+  }
+
+  .top-bar { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-shrink: 0; }
+  .mult-badge {
+    background: rgba(255, 215, 0, 0.12); border: 1px solid rgba(255, 215, 0, 0.35);
+    color: #ffd700; font-size: 0.7rem; font-weight: 700; padding: 4px 9px;
+    border-radius: 20px; display: flex; align-items: center; gap: 4px;
+    cursor: pointer;
+  }
+  .zone-badge {
+    background: rgba(127, 255, 212, 0.12); border: 1px solid rgba(127, 255, 212, 0.35);
+    color: #7fffd4; font-size: 0.7rem; font-weight: 800; padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .icon-btn {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(120,180,255,0.3);
+    color: #fff; border-radius: 20px; padding: 4px 9px; font-size: 0.72rem;
+    cursor: pointer; font-family: inherit;
+  }
+
+  .header { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; flex-shrink: 0; }
+  .stat-box {
+    background: rgba(255,255,255,0.06); backdrop-filter: blur(6px);
+    border: 1px solid rgba(120,180,255,0.28);
+    border-radius: 12px; padding: 6px; text-align: center;
+  }
+  .stat-label { font-size: 0.62rem; color: #8fa8d8; text-transform: uppercase; letter-spacing: 0.7px; }
+  .stat-value { font-size: 1.12rem; font-weight: 800; color: #7fffd4; text-shadow: 0 0 10px rgba(127,255,212,0.4); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat-value.gold { color: #ffd700; text-shadow: 0 0 10px rgba(255,215,0,0.4); }
+  .stat-sub { font-size: 0.6rem; color: #7a92bf; margin-top: 1px; }
+
+  /* HUD Босса */
+  .boss-hud {
+    background: rgba(15, 20, 50, 0.75); border: 1px solid rgba(120, 180, 255, 0.3);
+    border-radius: 12px; padding: 6px 10px; flex-shrink: 0;
+  }
+  .boss-hud.is-boss {
+    background: linear-gradient(90deg, rgba(180, 20, 40, 0.35), rgba(40, 10, 30, 0.7));
+    border-color: rgba(255, 75, 95, 0.75);
+    box-shadow: 0 0 15px rgba(255, 50, 70, 0.25);
+  }
+  .boss-top { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; font-weight: 800; margin-bottom: 4px; }
+  .boss-name { color: #fff; display: flex; align-items: center; gap: 5px; }
+  .boss-hud.is-boss .boss-name { color: #ff6b81; }
+  .boss-timer { color: #ffd700; font-variant-numeric: tabular-nums; }
+  .hp-bar-wrap {
+    width: 100%; height: 14px; background: rgba(0,0,0,0.55);
+    border-radius: 8px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.12);
+  }
+  .hp-bar-fill {
+    height: 100%; width: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    transition: width 0.08s linear;
+  }
+  .boss-hud.is-boss .hp-bar-fill {
+    background: linear-gradient(90deg, #dc2626, #f97316);
+  }
+  .hp-text {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; font-weight: 800; text-shadow: 0 1px 3px #000; letter-spacing: 0.3px;
+  }
+
+  /* Область 3D и клика */
+  .planet-area {
+    position: relative; display: flex; justify-content: center; align-items: center;
+    height: 195px; flex-shrink: 0; cursor: pointer;
+    border-radius: 16px; background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 72%);
+    overflow: hidden;
+  }
+  .planet-area.shake { animation: screenShake 0.25s ease-in-out; }
+  @keyframes screenShake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-4px, 3px); }
+    50% { transform: translate(4px, -3px); }
+    75% { transform: translate(-3px, -2px); }
+  }
+
+  .float-text {
+    position: absolute; font-size: 1.2rem; font-weight: 800;
+    color: #7fffd4; text-shadow: 0 0 8px rgba(0,0,0,0.9);
+    pointer-events: none; animation: floatUp 0.75s ease-out forwards; z-index: 10;
+    white-space: nowrap;
+  }
+  .float-text.crit {
+    font-size: 1.55rem; color: #ffd700;
+    text-shadow: 0 0 12px rgba(255,215,0,0.95), 0 0 4px #ff4500;
+  }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(0.9); }
+    100% { opacity: 0; transform: translate(-50%,-100px) scale(1.25); }
+  }
+
+  .spark {
+    position: absolute; width: 6px; height: 6px; border-radius: 50%;
+    pointer-events: none; animation: sparkOut 0.6s ease-out forwards; z-index: 9;
+  }
+  @keyframes sparkOut {
+    0% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0); }
+  }
+
+  /* Множественные виды автокликеров */
+  .auto-cursor {
+    position: absolute; font-size: 1.3rem; pointer-events: none; z-index: 8;
+    transition: transform 0.06s ease-out, left 0.18s ease, top 0.18s ease;
+    filter: drop-shadow(0 0 6px #7fffd4);
+    transform: translate(-50%, -50%);
+  }
+  .auto-cursor.tap { transform: translate(-50%, -50%) scale(0.7) rotate(-20deg); }
+
+  .tabs {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px;
+    background: rgba(255,255,255,0.06); padding: 4px; border-radius: 12px; flex-shrink: 0;
+  }
+  .tab {
+    padding: 7px 1px; text-align: center; border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: 0.66rem; color: #8fa8d8;
+    transition: all 0.2s; border: none; background: transparent; font-family: inherit;
+    position: relative; white-space: nowrap;
+  }
+  .tab.active {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+  }
+  .tab-dot {
+    position: absolute; top: 3px; right: 4px; width: 6px; height: 6px;
+    background: #ffd700; border-radius: 50%; box-shadow: 0 0 6px #ffd700;
+  }
+
+  .buy-mode-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 2px; flex-shrink: 0;
+  }
+  .buy-mode-label { font-size: 0.68rem; color: #8fa8d8; }
+  .buy-modes { display: flex; gap: 4px; }
+  .mode-btn {
+    background: rgba(255,255,255,0.07); border: 1px solid rgba(120,180,255,0.25);
+    color: #8fa8d8; border-radius: 6px; padding: 2px 8px; font-size: 0.68rem;
+    font-weight: 700; cursor: pointer; font-family: inherit;
+  }
+  .mode-btn.active {
+    background: rgba(127,255,212,0.18); border-color: #7fffd4; color: #7fffd4;
+  }
+
+  .panel-container {
+    flex-grow: 1; overflow-y: auto; border-radius: 12px; padding-right: 2px;
+  }
+  .panel-container::-webkit-scrollbar { width: 4px; }
+  .panel-container::-webkit-scrollbar-thumb { background: rgba(120,180,255,0.45); border-radius: 2px; }
+
+  .panel { display: flex; flex-direction: column; gap: 6px; padding-bottom: 8px; }
+  .hidden { display: none !important; }
+
+  .upgrade {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(120,180,255,0.22);
+    border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: transform 0.1s, border-color 0.2s, background 0.2s;
+  }
+  .upgrade:active { transform: scale(0.975); }
+  .upgrade.affordable { border-color: rgba(127,255,212,0.65); background: rgba(127,255,212,0.09); }
+  .upgrade.affordable .upg-cost { color: #7fffd4; }
+  .upgrade.locked { opacity: 0.52; }
+
+  .upg-icon { font-size: 1.5rem; width: 32px; text-align: center; flex-shrink: 0; }
+  .upg-info { flex: 1; min-width: 0; }
+  .upg-name { font-weight: 700; font-size: 0.8rem; margin-bottom: 2px; display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+  .upg-desc { font-size: 0.66rem; color: #9cb3de; }
+  .upg-cost { font-weight: 800; font-size: 0.8rem; color: #ffd700; text-align: right; white-space: nowrap; flex-shrink: 0; }
+  .upg-cost-sub { font-size: 0.62rem; color: #8fa8d8; font-weight: 600; }
+  .upg-level {
+    font-size: 0.62rem; color: #7fffd4; background: rgba(127,255,212,0.12);
+    padding: 1px 5px; border-radius: 6px;
+  }
+
+  .ach-card {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(120,180,255,0.18);
+    border-radius: 12px; padding: 8px 10px; opacity: 0.5;
+  }
+  .ach-card.unlocked {
+    opacity: 1; border-color: rgba(255,215,0,0.55);
+    background: linear-gradient(90deg, rgba(255,215,0,0.12), rgba(255,255,255,0.04));
+  }
+
+  .toast, .achievement {
+    position: fixed; left: 50%; transform: translateX(-50%) translateY(120px);
+    padding: 9px 16px; border-radius: 12px; font-size: 0.78rem; font-weight: 700;
+    z-index: 100; text-align: center; transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.5); pointer-events: none; max-width: 90%;
+  }
+  .toast { bottom: 16px; background: rgba(37, 99, 235, 0.96); border: 1px solid rgba(147,197,253,0.4); color: #fff; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .achievement {
+    top: 12px; background: linear-gradient(135deg, #ffd700, #f59e0b); color: #090926;
+    transform: translateX(-50%) translateY(-160px); z-index: 101;
+  }
+  .achievement.show { transform: translateX(-50%) translateY(0); }
+
+  /* Админ панель модал */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+    z-index: 300; display: flex; justify-content: center; align-items: center; padding: 20px;
+  }
+  .modal {
+    background: linear-gradient(160deg, #1e1b4b, #090926);
+    border: 2px solid #ff4757; border-radius: 18px;
+    padding: 20px; max-width: 360px; width: 100%; text-align: center;
+    box-shadow: 0 15px 40px rgba(255,71,87,0.3);
+  }
+  .modal h3 { font-size: 1.1rem; color: #ff4757; margin-bottom: 10px; }
+  .modal-btn {
+    width: 100%; padding: 10px; margin-top: 8px; border: none; border-radius: 10px;
+    background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff;
+    font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: inherit;
+  }
+
+  .reset-btn {
+    background: rgba(255,50,50,0.1); border: 1px solid rgba(255,80,80,0.3);
+    color: #ff7b7b; padding: 6px; border-radius: 10px;
+    font-family: inherit; font-size: 0.7rem; cursor: pointer; flex-shrink: 0;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<div id="stars"></div>
+
+<div class="app">
+  <div class="top-bar">
+    <div class="zone-badge" id="zoneBadge">🪐 Сектор 1 • Волна 1/10</div>
+    <div class="mult-badge" id="globalMultBadge" onclick="checkSecretEasterEgg()">⭐ Множитель: x1.00</div>
+    <button class="icon-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+  </div>
+
+  <div class="header" id="headerTitle" onclick="adminTripleTap(event)">
+    <div class="stat-box">
+      <div class="stat-label">✨ Кристаллы</div>
+      <div class="stat-value" id="crystals">0</div>
+      <div class="stat-sub" id="clickPowerSub">Урон: 1</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">⚔️ Урон в сек (DPS)</div>
+      <div class="stat-value gold" id="cps">0</div>
+      <div class="stat-sub" id="bossKillsSub">Боссов: 0</div>
+    </div>
+  </div>
+
+  <div class="boss-hud" id="bossHud">
+    <div class="boss-top">
+      <div class="boss-name" id="enemyName">🌍 Астероид-разведчик</div>
+      <div class="boss-timer" id="bossTimer"></div>
+    </div>
+    <div class="hp-bar-wrap">
+      <div class="hp-bar-fill" id="hpBarFill"></div>
+      <div class="hp-text" id="hpText">15 / 15 HP</div>
+    </div>
+  </div>
+
+  <div class="planet-area" id="planetArea">
+    <canvas id="planetCanvas" style="width: 175px; height: 175px; pointer-events: none;"></canvas>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="upg" onclick="switchTab('upg', this)">⚔️ Флот</button>
+    <button class="tab" data-tab="lab" onclick="switchTab('lab', this)">🧪 Наука</button>
+    <button class="tab" data-tab="bst" onclick="switchTab('bst', this)">⚡ Бусты</button>
+    <button class="tab" data-tab="ach" onclick="switchTab('ach', this)">🏆 Награды</button>
+    <button class="tab" data-tab="prs" onclick="switchTab('prs', this)">🌟 Престиж</button>
+  </div>
+
+  <div class="buy-mode-bar" id="buyModeBar">
+    <span class="buy-mode-label">Покупка:</span>
+    <div class="buy-modes">
+      <button class="mode-btn active" onclick="setBuyMode(1, this)">x1</button>
+      <button class="mode-btn" onclick="setBuyMode(10, this)">x10</button>
+      <button class="mode-btn" onclick="setBuyMode(100, this)">x100</button>
+      <button class="mode-btn" onclick="setBuyMode('max', this)">MAX</button>
+    </div>
+  </div>
+
+  <div class="panel-container">
+    <div class="panel" id="panel-upg"></div>
+    <div class="panel hidden" id="panel-lab"></div>
+    <div class="panel hidden" id="panel-bst"></div>
+    <div class="panel hidden" id="panel-ach"></div>
+    <div class="panel hidden" id="panel-prs"></div>
+  </div>
+
+  <button class="reset-btn" onclick="resetGame()">🗑️ Сбросить весь прогресс</button>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="achievement" id="achievement"></div>
+
+<!-- Секретная Админ-панель -->
+<div class="modal-backdrop hidden" id="adminModal">
+  <div class="modal">
+    <h3>👑 Секретная Панель Админа</h3>
+    <p style="font-size:0.75rem; color:#b4c6e7; margin-bottom: 12px;">Добро пожаловать в системное меню разработчика, Создатель!</p>
+    <button class="modal-btn" onclick="adminAddCrystals()">💰 Накинуть 1,000,000 💎</button>
+    <button class="modal-btn" onclick="adminSkipBoss()" style="background:linear-gradient(135deg, #10b981, #059669);">⏭️ Пропустить Босса/Волну</button>
+    <button class="modal-btn" onclick="adminGodMode()" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9);">⚡ Умножить урон x100</button>
+    <button class="modal-btn" onclick="closeAdminModal()" style="background:rgba(255,255,255,0.1); margin-top:10px;">Закрыть</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 🚀 КОСМИЧЕСКАЯ ФЕРМА: ULTIMATE EDITION (v11.0)
+// ============================================================
+
+const SAVE_KEY = 'spaceFarm_ultimate_v11';
+
+class BigVal {
+  constructor(m = 0, e = 0) {
+    if (m instanceof BigVal) { this.m = m.m; this.e = m.e; return; }
+    if (typeof m === 'object' && m !== null && 'm' in m && 'e' in m) {
+      this.m = Number(m.m) || 0; this.e = Number(m.e) || 0; this.normalize(); return;
+    }
+    this.m = Number(m) || 0; this.e = Number(e) || 0; this.normalize();
+  }
+  normalize() {
+    if (!isFinite(this.m) || isNaN(this.m) || this.m === 0) { this.m = 0; this.e = 0; return this; }
+    const sign = this.m < 0 ? -1 : 1;
+    let absM = Math.abs(this.m);
+    if (absM >= 10) {
+      const shift = Math.floor(Math.log10(absM));
+      absM /= Math.pow(10, shift);
+      this.e += shift;
+    } else if (absM < 1 && absM > 0) {
+      const shift = Math.floor(Math.log10(absM));
+      absM /= Math.pow(10, shift);
+      this.e += shift;
+    }
+    this.m = sign * absM;
+    return this;
+  }
+  static from(val) {
+    if (val instanceof BigVal) return new BigVal(val.m, val.e);
+    if (typeof val === 'object' && val !== null && 'm' in val) return new BigVal(val.m, val.e);
+    return new BigVal(val, 0);
+  }
+  add(other) {
+    const b = BigVal.from(other);
+    if (this.m === 0) return new BigVal(b);
+    if (b.m === 0) return new BigVal(this);
+    const diff = this.e - b.e;
+    if (diff > 15) return new BigVal(this);
+    if (diff < -15) return new BigVal(b);
+    if (diff >= 0) { return new BigVal(this.m + b.m * Math.pow(10, -diff), this.e); }
+    else { return new BigVal(this.m * Math.pow(10, diff) + b.m, b.e); }
+  }
+  sub(other) { const b = BigVal.from(other); return this.add(new BigVal(-b.m, b.e)); }
+  mul(other) {
+    const b = BigVal.from(other);
+    if (this.m === 0 || b.m === 0) return new BigVal(0, 0);
+    return new BigVal(this.m * b.m, this.e + b.e);
+  }
+  div(other) {
+    const b = BigVal.from(other);
+    if (b.m === 0 || this.m === 0) return new BigVal(0, 0);
+    return new BigVal(this.m / b.m, this.e - b.e);
+  }
+  pow(exp) {
+    if (this.m <= 0) return new BigVal(0, 0);
+    const log10Val = (Math.log10(this.m) + this.e) * exp;
+    const newE = Math.floor(log10Val);
+    const newM = Math.pow(10, log10Val - newE);
+    return new BigVal(newM, newE);
+  }
+  gte(other) {
+    const b = BigVal.from(other);
+    if (this.m === 0 && b.m === 0) return true;
+    if (this.m >= 0 && b.m < 0) return true;
+    if (this.m < 0 && b.m >= 0) return false;
+    if (this.m === 0) return b.m <= 0;
+    if (b.m === 0) return this.m >= 0;
+    if (this.e !== b.e) return this.m > 0 ? this.e > b.e : this.e < b.e;
+    return this.m >= b.m - 1e-12;
+  }
+  toNumber() {
+    if (this.e > 300) return 1e300;
+    if (this.e < -300) return 0;
+    return this.m * Math.pow(10, this.e);
+  }
+  format() {
+    if (this.m <= 0) return '0';
+    if (this.e < 3) {
+      const val = this.toNumber();
+      return val < 10 && val % 1 !== 0 ? val.toFixed(1) : Math.floor(val).toString();
+    }
+    const suffixes = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc', 'UDc', 'DDc', 'TDc', 'QaDc', 'QiDc'];
+    const idx = Math.floor(this.e / 3);
+    const rem = this.e % 3;
+    const disp = this.m * Math.pow(10, rem);
+    if (idx < suffixes.length) return disp.toFixed(2) + ' ' + suffixes[idx];
+    return this.m.toFixed(2) + 'e' + this.e;
+  }
+}
+
+const SECTOR_NAMES = [
+  'Пояс Астероидов', 'Туманность Ориона', 'Орбита Марса', 'Кольца Сатурна',
+  'Кристальный Рифт', 'Гравитационный Колодец', 'Звездная Кузня', 'Черная Дыра X-1'
+];
+const BOSS_NAMES = [
+  '👹 Левиафан Пояса', '🐉 Кристальный Дракон', '🤖 Дредноут Альфа', '👾 Пожиратель Звезд',
+  '💀 Страж Сингулярности', '🔥 Феникс Сверхновой', '👑 Император Пустоты', '🌌 Архитектор Хаоса'
+];
+
+const DEFAULT_DATA = {
+  crystals: new BigVal(0),
+  lifetimeEarned: new BigVal(0),
+  totalClicks: 0,
+  sector: 1,
+  wave: 1,
+  enemyHp: new BigVal(15),
+  enemyMaxHp: new BigVal(15),
+  bossTimer: 30,
+  bossesKilled: 0,
+  prestigeCores: 0,
+  adminGodMultiplier: 1,
+  soundOn: true,
+  unlockedAch: {},
+  upgrades: {
+    pickaxe:   { level: 0, baseCost: 12,     name: 'Плазменный резак', icon: '⚔️', desc: '+1 урон клика',       type: 'click', value: 1, costMult: 1.15 },
+    autoclick1:{ level: 0, baseCost: 80,     name: 'Дрон-сборщик',     icon: '🛸', desc: '+1 авто-клик/сек',    type: 'autoclick', tier: 1, value: 1, costMult: 1.18 },
+    drone:     { level: 0, baseCost: 45,     name: 'Боевой турель',    icon: '🤖', desc: '+2 DPS (урон/сек)',   type: 'auto',  value: 2, costMult: 1.14 },
+    autoclick2:{ level: 0, baseCost: 650,    name: 'Нано-рой 3000',    icon: '🐝', desc: '+5 авто-кликов/сек',  type: 'autoclick', tier: 2, value: 5, costMult: 1.20 },
+    mecharm:   { level: 0, baseCost: 350,    name: 'Тяжелый рельсотрон',icon: '🦾', desc: '+12 урон клика',      type: 'click', value: 12, costMult: 1.15 },
+    laser:     { level: 0, baseCost: 1100,   name: 'Орбитальный лазер',icon: '🔫', desc: '+35 DPS',             type: 'auto',  value: 35, costMult: 1.14 },
+    autoclick3:{ level: 0, baseCost: 4500,   name: 'Квантовый Легион', icon: '⚡', desc: '+20 авто-кликов/сек', type: 'autoclick', tier: 3, value: 20, costMult: 1.22 },
+    critcore:  { level: 0, baseCost: 3000,   name: 'Прицел-сканер',    icon: '💠', desc: '+1.5% шанс крита',    type: 'crit',  value: 1.5, maxLevel: 40, costMult: 1.25 },
+    factory:   { level: 0, baseCost: 12000,  name: 'Крейсер-эсминец',  icon: '🚀', desc: '+320 DPS',            type: 'auto',  value: 320, costMult: 1.14 },
+    satellite: { level: 0, baseCost: 95000,  name: 'Ионная пушка',     icon: '🛰️', desc: '+2.4K DPS',           type: 'auto',  value: 2400, costMult: 1.14 },
+    godhand:   { level: 0, baseCost: 650000, name: 'Молот Тора',       icon: '🔨', desc: '+12K урон клика',     type: 'click', value: 12000, costMult: 1.16 },
+    portal:    { level: 0, baseCost: 4.5e6,  name: 'Звездный линкор',  icon: '🛸', desc: '+85K DPS',            type: 'auto',  value: 85000, costMult: 1.14 },
+    singularity:{ level: 0, baseCost: 2.8e9, name: 'Пожиратель миров', icon: '🕳️', desc: '+48M DPS',            type: 'auto',  value: 48e6, costMult: 1.14 }
+  },
+  research: {
+    res1: { level: 0, baseCost: 600,   name: 'Бронебойные заряды', icon: '🧪', desc: '+15% к урону клика за ур.', value: 0.15, maxLevel: 100, costMult: 1.3 },
+    res2: { level: 0, baseCost: 1800,  name: 'ИИ наведения флота', icon: '🧬', desc: '+15% ко всему DPS за ур.',  value: 0.15, maxLevel: 100, costMult: 1.3 },
+    res3: { level: 0, baseCost: 8000,  name: 'Крит-перегрузка',    icon: '🔭', desc: '+25% к силе крита за ур.',  value: 0.25, maxLevel: 60,  costMult: 1.35 },
+    res4: { level: 0, baseCost: 25000, name: 'Трофейный сканер',   icon: '💎', desc: '+20% кристаллов с целей',   value: 0.20, maxLevel: 100, costMult: 1.35 }
+  },
+  boosters: {
+    frenzy:    { name: 'Боевой раж',     icon: '⚡', desc: 'x3 к урону клика на 30с', cost: 800,   mult: 3, duration: 30, active: 0 },
+    overdrive: { name: 'Полный залп',    icon: '🔥', desc: 'x2 ко всему урону на 25с',cost: 3500,  mult: 2, duration: 25, active: 0 },
+    hyperwarp: { name: 'Орбитальный удар',icon: '☄️', desc: 'Сносит 25% HP врага сразу!', cost: 2000, instant: true }
+  }
+};
+
+const ACHIEVEMENTS = [
+  { id: 'b1',   icon: '👹', name: 'Охотник за головами', desc: 'Победить первого Босса', check: s => s.bossesKilled >= 1 },
+  { id: 'b5',   icon: '⚔️', name: 'Гроза секторов',     desc: 'Победить 5 Боссов',       check: s => s.bossesKilled >= 5 },
+  { id: 'c100', icon: '👆', name: 'Стрелок',             desc: 'Сделать 100 кликов',      check: s => s.totalClicks >= 100 },
+  { id: 's5',   icon: '🌌', name: 'Космонавт',           desc: 'Дойти до 5 Сектора',      check: s => s.sector >= 5 },
+  { id: 'p1',   icon: '🌟', name: 'Сингулярность',       desc: 'Совершить Престиж',       check: s => s.prestigeCores >= 1 }
+];
+
+let state = {};
+let buyMode = 1;
+let activeTab = 'upg';
+
+let audioCtx = null;
+function playTone(freq, type = 'sine', duration = 0.06, vol = 0.06) {
+  if (!state.soundOn) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(freq * 1.25, audioCtx.currentTime + duration);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch (e) {}
+}
+
+function toggleSound() {
+  state.soundOn = !state.soundOn;
+  document.getElementById('soundBtn').textContent = state.soundOn ? '🔊' : '🔇';
+  saveGame();
+}
+
+function loadGame() {
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  state.crystals = new BigVal(0);
+  state.lifetimeEarned = new BigVal(0);
+  state.enemyHp = new BigVal(15);
+  state.enemyMaxHp = new BigVal(15);
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const p = JSON.parse(raw);
+      if (p.crystals) state.crystals = BigVal.from(p.crystals);
+      if (p.lifetimeEarned) state.lifetimeEarned = BigVal.from(p.lifetimeEarned);
+      if (p.enemyHp) state.enemyHp = BigVal.from(p.enemyHp);
+      if (p.enemyMaxHp) state.enemyMaxHp = BigVal.from(p.enemyMaxHp);
+      for (const k of ['totalClicks','sector','wave','bossTimer','bossesKilled','prestigeCores','adminGodMultiplier','soundOn']) {
+        if (p[k] !== undefined) state[k] = p[k];
+      }
+      if (p.unlockedAch) state.unlockedAch = p.unlockedAch;
+      if (p.upgrades) {
+        for (const k in state.upgrades) { if (p.upgrades[k] && typeof p.upgrades[k].level === 'number') state.upgrades[k].level = p.upgrades[k].level; }
+      }
+      if (p.research) {
+        for (const k in state.research) { if (p.research[k] && typeof p.research[k].level === 'number') state.research[k].level = p.research[k].level; }
+      }
+    }
+  } catch (e) {}
+  document.getElementById('soundBtn').textContent = state.soundOn ? '🔊' : '🔇';
+}
+loadGame();
+
+function saveGame() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function calcEnemyMaxHp(sector, wave) {
+  const isBoss = wave === 10;
+  const base = new BigVal(15, 0);
+  const sectorScale = new BigVal(1.55, 0).pow(sector - 1);
+  const waveScale = 1 + (wave - 1) * 0.12;
+  let hp = base.mul(sectorScale).mul(waveScale);
+  if (isBoss) hp = hp.mul(4);
+  return hp;
+}
+
+function spawnEnemy(resetTimer = true) {
+  const maxHp = calcEnemyMaxHp(state.sector, state.wave);
+  state.enemyMaxHp = maxHp;
+  state.enemyHp = new BigVal(maxHp);
+  if (resetTimer && state.wave === 10) state.bossTimer = 30;
+  updateEnemyVisuals();
+}
+
+function getGlobalDamageMult() {
+  const achCount = Object.keys(state.unlockedAch).length;
+  const achMult = 1 + achCount * 0.10;
+  const prestigeMult = 1 + state.prestigeCores * 0.35;
+  const adminM = state.adminGodMultiplier || 1;
+  return new BigVal(achMult * prestigeMult * adminM, 0);
+}
+
+function getClickDamage() {
+  let base = 1;
+  for (const k in state.upgrades) {
+    const u = state.upgrades[k];
+    if (u.type === 'click') base += u.value * u.level;
+  }
+  const resMult = 1 + state.research.res1.level * state.research.res1.value;
+  let dmg = new BigVal(base * resMult, 0).mul(getGlobalDamageMult());
+  if (state.boosters.frenzy.active > 0) dmg = dmg.mul(state.boosters.frenzy.mult);
+  if (state.boosters.overdrive.active > 0) dmg = dmg.mul(state.boosters.overdrive.mult);
+  return dmg;
+}
+
+function getAutoDps() {
+  let base = 0;
+  for (const k in state.upgrades) {
+    const u = state.upgrades[k];
+    if (u.type === 'auto') base += u.value * u.level;
+  }
+  const resMult = 1 + state.research.res2.level * state.research.res2.value;
+  let dps = new BigVal(base * resMult, 0).mul(getGlobalDamageMult());
+  if (state.boosters.overdrive.active > 0) dps = dps.mul(state.boosters.overdrive.mult);
+  return dps;
+}
+
+function getCritChance() { return Math.min(60, state.upgrades.critcore.level * state.upgrades.critcore.value); }
+function getCritMult() { return 2.5 + state.research.res3.level * state.research.res3.value; }
+function getLootMult() { return 1 + state.research.res4.level * state.research.res4.value; }
+
+function dealDamage(amount, x = null, y = null, isCrit = false) {
+  if (amount.m <= 0) return;
+  state.enemyHp = state.enemyHp.sub(amount);
+
+  if (x !== null && y !== null) {
+    spawnFloatingText(x, y, (isCrit ? '💥 -' : '-') + amount.format(), isCrit);
+    spawnSparks(x, y, isCrit ? 9 : 3);
+  }
+
+  if (state.enemyHp.m <= 0) {
+    triggerExplosionAnimation();
+    onEnemyDefeated();
+  }
+}
+
+function triggerExplosionAnimation() {
+  const area = document.getElementById('planetArea');
+  area.classList.add('shake');
+  setTimeout(() => area.classList.remove('shake'), 250);
+  playTone(180, 'sawtooth', 0.18, 0.15);
+}
+
+function onEnemyDefeated() {
+  const isBoss = state.wave === 10;
+  let reward = state.enemyMaxHp.mul(isBoss ? 0.6 : 0.3).mul(getLootMult());
+  if (reward.toNumber() < 3) reward = new BigVal(3, 0);
+
+  state.crystals = state.crystals.add(reward);
+  state.lifetimeEarned = state.lifetimeEarned.add(reward);
+
+  const area = document.getElementById('planetArea');
+  const rect = area.getBoundingClientRect();
+  spawnFloatingText(rect.width / 2, rect.height / 2 - 25, `💎 +${reward.format()}`, true);
+
+  if (isBoss) {
+    state.bossesKilled++;
+    playTone(900, 'triangle', 0.3, 0.15);
+    showToast(`👹 БОСС УНИЧТОЖЕН! Переход в Сектор ${state.sector + 1}`);
+    state.sector++;
+    state.wave = 1;
+  } else {
+    playTone(520, 'sine', 0.08, 0.07);
+    state.wave++;
+  }
+
+  spawnEnemy(true);
+  checkAchievements();
+  saveGame();
+}
+
+function getSingleCost(u, lvl) { return new BigVal(u.baseCost, 0).mul(new BigVal(u.costMult, 0).pow(lvl)); }
+
+function getBulkPurchaseInfo(key, mode, isResearch = false) {
+  const col = isResearch ? state.research : state.upgrades;
+  const u = col[key];
+  const maxAllowed = u.maxLevel ? Math.max(0, u.maxLevel - u.level) : 999999;
+  if (maxAllowed === 0) return { count: 0, cost: new BigVal(0), maxed: true };
+
+  if (mode === 1) return { count: 1, cost: getSingleCost(u, u.level), maxed: false };
+
+  const calcSum = (n) => {
+    let sum = new BigVal(0);
+    for (let i = 0; i < n; i++) sum = sum.add(getSingleCost(u, u.level + i));
+    return sum;
+  };
+
+  if (typeof mode === 'number') {
+    const n = Math.min(mode, maxAllowed);
+    return { count: n, cost: calcSum(n), maxed: false };
+  }
+
+  let count = 0, totalCost = new BigVal(0);
+  while (count < Math.min(300, maxAllowed)) {
+    const nextCost = getSingleCost(u, u.level + count);
+    if (state.crystals.gte(totalCost.add(nextCost))) {
+      totalCost = totalCost.add(nextCost); count++;
+    } else break;
+  }
+  if (count === 0) return { count: 1, cost: getSingleCost(u, u.level), maxed: false };
+  return { count, cost: totalCost, maxed: false };
+}
+
+// 3D Сцена с крушением и вращением
+const area = document.getElementById('planetArea');
+const canvas = document.getElementById('planetCanvas');
+let scene, camera, renderer, targetGroup;
+
+function init3D() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.z = 3.4;
+
+  renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setSize(175, 175);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  dirLight.position.set(4, 4, 5);
+  scene.add(dirLight);
+
+  updateEnemyVisuals();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    if (targetGroup) {
+      const isBoss = state.wave === 10;
+      targetGroup.rotation.y += isBoss ? 0.015 : 0.007; // Заметное вращение планеты
+      targetGroup.rotation.x += isBoss ? 0.008 : 0.003;
+      targetGroup.scale.lerp(new THREE.Vector3(1, 1, 1), 0.18);
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+}
+
+function updateEnemyVisuals() {
+  const isBoss = state.wave === 10;
+  const hud = document.getElementById('bossHud');
+  const nameEl = document.getElementById('enemyName');
+  const zoneBadge = document.getElementById('zoneBadge');
+
+  const secName = SECTOR_NAMES[(state.sector - 1) % SECTOR_NAMES.length];
+  zoneBadge.textContent = `🪐 Сектор ${state.sector} • Волна ${state.wave}/10`;
+
+  if (isBoss) {
+    hud.classList.add('is-boss');
+    const bName = BOSS_NAMES[(state.sector - 1) % BOSS_NAMES.length];
+    nameEl.textContent = `⚠️ БОСС: ${bName}`;
+  } else {
+    hud.classList.remove('is-boss');
+    nameEl.textContent = `☄️ ${secName} (Цель #${state.wave})`;
+  }
+
+  if (!scene) return;
+  if (targetGroup) scene.remove(targetGroup);
+  targetGroup = new THREE.Group();
+
+  const palettes = [
+    [0x3b82f6, 0x1d4ed8], [0x10b981, 0x047857], [0xa855f7, 0x6b21a8],
+    [0xf59e0b, 0xb45309], [0xec4899, 0x9d174d], [0x06b6d4, 0x0e7490]
+  ];
+  const pal = isBoss ? [0xdc2626, 0x7f1d1d] : palettes[(state.sector - 1) % palettes.length];
+
+  const coreGeo = isBoss ? new THREE.IcosahedronGeometry(1.05, 1) : new THREE.SphereGeometry(0.95, 28, 28);
+  const coreMat = new THREE.MeshStandardMaterial({
+    color: pal[0], emissive: pal[1], emissiveIntensity: isBoss ? 0.45 : 0.22,
+    roughness: isBoss ? 0.3 : 0.45, metalness: isBoss ? 0.5 : 0.2, flatShading: isBoss
+  });
+  targetGroup.add(new THREE.Mesh(coreGeo, coreMat));
+
+  if (isBoss) {
+    const ringGeo = new THREE.TorusGeometry(1.38, 0.05, 8, 32);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0xffd700 });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 3;
+    targetGroup.add(ring);
+  }
+
+  scene.add(targetGroup);
+}
+
+function updateUI() {
+  document.getElementById('crystals').textContent = state.crystals.format();
+  document.getElementById('cps').textContent = getAutoDps().format();
+  const critStr = getCritChance() > 0 ? ` (${getCritChance().toFixed(0)}% крит)` : '';
+  document.getElementById('clickPowerSub').textContent = `Урон: ${getClickDamage().format()}${critStr}`;
+  document.getElementById('bossKillsSub').textContent = `Боссов: ${state.bossesKilled}`;
+  document.getElementById('globalMultBadge').textContent = `⭐ Множитель: x${getGlobalDamageMult().format()}`;
+
+  const ratio = Math.max(0, Math.min(1, state.enemyHp.div(state.enemyMaxHp).toNumber()));
+  document.getElementById('hpBarFill').style.width = (ratio * 100).toFixed(1) + '%';
+  document.getElementById('hpText').textContent = `${state.enemyHp.format()} / ${state.enemyMaxHp.format()} HP`;
+
+  const timerEl = document.getElementById('bossTimer');
+  timerEl.textContent = state.wave === 10 ? `⏳ ${state.bossTimer.toFixed(1)}с` : '';
+
+  refreshVisiblePanel();
+}
+
+function buildUpgradesDOM() {
+  let html = '';
+  for (const key in state.upgrades) {
+    const u = state.upgrades[key];
+    html += `
+      <div class="upgrade locked" id="upg-row-${key}" onclick="buyUpgrade('${key}', false)">
+        <div class="upg-icon">${u.icon}</div>
+        <div class="upg-info">
+          <div class="upg-name">${u.name}<span class="upg-level" id="upg-lvl-${key}">ур. ${u.level}</span></div>
+          <div class="upg-desc">${u.desc}</div>
+        </div>
+        <div class="upg-cost">
+          <div id="upg-cost-${key}">💎 0</div>
+          <div class="upg-cost-sub" id="upg-qty-${key}"></div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('panel-upg').innerHTML = html;
+}
+
+function refreshUpgradesDOM() {
+  for (const key in state.upgrades) {
+    const u = state.upgrades[key];
+    const row = document.getElementById(`upg-row-${key}`);
+    if (!row) continue;
+    const info = getBulkPurchaseInfo(key, buyMode, false);
+    document.getElementById(`upg-lvl-${key}`).textContent = u.maxLevel ? `ур. ${u.level}/${u.maxLevel}` : `ур. ${u.level}`;
+    if (info.maxed) {
+      row.classList.remove('affordable'); row.classList.add('locked');
+      document.getElementById(`upg-cost-${key}`).textContent = 'МАКС';
+      document.getElementById(`upg-qty-${key}`).textContent = '';
+    } else {
+      const canAfford = state.crystals.gte(info.cost);
+      row.classList.toggle('affordable', canAfford);
+      row.classList.toggle('locked', !canAfford);
+      document.getElementById(`upg-cost-${key}`).textContent = `💎 ${info.cost.format()}`;
+      document.getElementById(`upg-qty-${key}`).textContent = info.count > 1 ? `+${info.count} ур.` : '';
+    }
+  }
+}
+
+function buildResearchDOM() {
+  let html = '';
+  for (const key in state.research) {
+    const u = state.research[key];
+    html += `
+      <div class="upgrade locked" id="res-row-${key}" onclick="buyUpgrade('${key}', true)">
+        <div class="upg-icon">${u.icon}</div>
+        <div class="upg-info">
+          <div class="upg-name">${u.name}<span class="upg-level" id="res-lvl-${key}">ур. ${u.level}</span></div>
+          <div class="upg-desc">${u.desc}</div>
+        </div>
+        <div class="upg-cost">
+          <div id="res-cost-${key}">💎 0</div>
+          <div class="upg-cost-sub" id="res-qty-${key}"></div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('panel-lab').innerHTML = html;
+}
+
+function refreshResearchDOM() {
+  for (const key in state.research) {
+    const u = state.research[key];
+    const row = document.getElementById(`res-row-${key}`);
+    if (!row) continue;
+    const info = getBulkPurchaseInfo(key, buyMode, true);
+    document.getElementById(`res-lvl-${key}`).textContent = u.maxLevel ? `ур. ${u.level}/${u.maxLevel}` : `ур. ${u.level}`;
+    if (info.maxed) {
+      row.classList.remove('affordable'); row.classList.add('locked');
+      document.getElementById(`res-cost-${key}`).textContent = 'МАКС';
+      document.getElementById(`res-qty-${key}`).textContent = '';
+    } else {
+      const canAfford = state.crystals.gte(info.cost);
+      row.classList.toggle('affordable', canAfford); row.classList.toggle('locked', !canAfford);
+      document.getElementById(`res-cost-${key}`).textContent = `💎 ${info.cost.format()}`;
+      document.getElementById(`res-qty-${key}`).textContent = info.count > 1 ? `+${info.count} ур.` : '';
+    }
+  }
+}
+
+function buildBoostersDOM() {
+  let html = '';
+  for (const key in state.boosters) {
+    const b = state.boosters[key];
+    html += `
+      <div class="upgrade locked" id="bst-row-${key}" onclick="buyBooster('${key}')">
+        <div class="upg-icon">${b.icon}</div>
+        <div class="upg-info">
+          <div class="upg-name">${b.name}<span class="upg-level hidden" id="bst-timer-${key}" style="color:#ffd700"></span></div>
+          <div class="upg-desc">${b.desc}</div>
+        </div>
+        <div class="upg-cost">💎 ${new BigVal(b.cost).format()}</div>
+      </div>`;
+  }
+  document.getElementById('panel-bst').innerHTML = html;
+}
+
+function refreshBoostersDOM() {
+  for (const key in state.boosters) {
+    const b = state.boosters[key];
+    const row = document.getElementById(`bst-row-${key}`);
+    const timer = document.getElementById(`bst-timer-${key}`);
+    if (!row) continue;
+    const isActive = (b.active || 0) > 0;
+    const canAfford = state.crystals.gte(b.cost);
+    row.classList.toggle('affordable', isActive || canAfford);
+    row.classList.toggle('locked', !isActive && !canAfford);
+    if (isActive) { timer.classList.remove('hidden'); timer.textContent = `АКТИВНО ${Math.ceil(b.active)}с`; }
+    else { timer.classList.add('hidden'); }
+  }
+}
+
+function renderAchievements() {
+  const unlockedCount = Object.keys(state.unlockedAch).length;
+  let html = `<div style="font-size:0.72rem;color:#8fa8d8;padding:2px 4px;">Открыто: <b style="color:#ffd700">${unlockedCount}/${ACHIEVEMENTS.length}</b> (+10% урона за каждую)</div>`;
+  for (const a of ACHIEVEMENTS) {
+    const done = !!state.unlockedAch[a.id];
+    html += `
+      <div class="ach-card ${done ? 'unlocked' : ''}">
+        <div class="upg-icon">${done ? a.icon : '🔒'}</div>
+        <div class="upg-info">
+          <div class="upg-name">${a.name}</div>
+          <div class="upg-desc">${a.desc}</div>
+        </div>
+        <div class="upg-cost" style="font-size:0.72rem;color:${done ? '#7fffd4' : '#8fa8d8'}">${done ? '+10% ✅' : 'Закрыто'}</div>
+      </div>`;
+  }
+  document.getElementById('panel-ach').innerHTML = html;
+}
+
+function renderPrestige() {
+  const coresGain = Math.max(0, Math.floor((state.sector - 2) * 1.5));
+  const prsTab = document.querySelector('.tab[data-tab="prs"]');
+  prsTab.innerHTML = coresGain > 0 ? '🌟 Престиж<span class="tab-dot"></span>' : '🌟 Престиж';
+  let html = `
+    <div class="upgrade" style="flex-direction:column;align-items:flex-start;cursor:default;">
+      <div style="font-size:0.9rem;font-weight:800;margin-bottom:6px;color:#ffd700;">🌟 Сингулярное Ядро</div>
+      <div style="font-size:0.72rem;color:#b4c6e7;line-height:1.5;">
+        Сбросьте сектор и флот ради ядер. Каждое ядро дает <b style="color:#7fffd4">+35%</b> к урону.<br>
+        Текущие ядра: <b style="color:#ffd700">${state.prestigeCores} 🌟</b> (+${state.prestigeCores * 35}% урона)<br>
+        При сбросе сейчас: <b style="color:#ffd700">+${coresGain} 🌟</b>
+      </div>
+    </div>`;
+  if (coresGain > 0) {
+    html += `<div class="upgrade affordable" onclick="doPrestige()" style="justify-content:center;padding:12px;font-weight:800;color:#ffd700;">🌟 ПЕРЕРОДИТЬСЯ (+${coresGain} 🌟)</div>`;
+  } else {
+    html += `<div class="upgrade locked" style="justify-content:center;padding:12px;font-size:0.74rem;text-align:center;">Победите Босса 2-го Сектора для открытия престижа</div>`;
+  }
+  document.getElementById('panel-prs').innerHTML = html;
+}
+
+function refreshVisiblePanel() {
+  if (activeTab === 'upg') refreshUpgradesDOM();
+  else if (activeTab === 'lab') refreshResearchDOM();
+  else if (activeTab === 'bst') refreshBoostersDOM();
+}
+
+const achEl = document.getElementById('achievement');
+let achTimer;
+function checkAchievements() {
+  let newlyUnlocked = false;
+  for (const a of ACHIEVEMENTS) {
+    if (!state.unlockedAch[a.id] && a.check(state)) {
+      state.unlockedAch[a.id] = true; newlyUnlocked = true;
+      achEl.textContent = `🏆 Награда: ${a.name} (+10% урона)`;
+      achEl.classList.add('show');
+      clearTimeout(achTimer);
+      achTimer = setTimeout(() => achEl.classList.remove('show'), 3200);
+      playTone(880, 'triangle', 0.25, 0.12);
+    }
+  }
+  if (newlyUnlocked && activeTab === 'ach') renderAchievements();
+}
+
+function setBuyMode(mode, btn) {
+  buyMode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  refreshVisiblePanel();
+}
+
+function buyUpgrade(key, isResearch = false) {
+  const col = isResearch ? state.research : state.upgrades;
+  const u = col[key];
+  const info = getBulkPurchaseInfo(key, buyMode, isResearch);
+  if (info.maxed) { showToast('Максимальный уровень!'); return; }
+  if (state.crystals.gte(info.cost) && info.count > 0) {
+    state.crystals = state.crystals.sub(info.cost);
+    u.level += info.count;
+    playTone(440, 'triangle', 0.08, 0.08);
+    checkAchievements(); updateUI(); saveGame();
+    showToast(`Улучшено: ${u.name} (+${info.count})`);
+  } else { showToast('Недостаточно кристаллов!'); }
+}
+
+function buyBooster(key) {
+  const b = state.boosters[key];
+  if (!b.instant && b.active > 0) { showToast('Уже активно!'); return; }
+  if (state.crystals.gte(b.cost)) {
+    state.crystals = state.crystals.sub(b.cost);
+    if (b.instant) {
+      const strike = state.enemyMaxHp.mul(0.25);
+      const rect = area.getBoundingClientRect();
+      dealDamage(strike, rect.width / 2, rect.height / 2, true);
+      showToast('☄️ Орбитальный удар снес 25% HP!');
+    } else {
+      b.active = b.duration;
+      showToast(`Активировано: ${b.name}!`);
+    }
+    playTone(620, 'sawtooth', 0.14, 0.08);
+    updateUI(); saveGame();
+  } else { showToast('Недостаточно кристаллов!'); }
+}
+
+function doPrestige() {
+  const coresGain = Math.max(0, Math.floor((state.sector - 2) * 1.5));
+  if (coresGain < 1) return;
+  if (confirm(`Переродиться и забрать +${coresGain} 🌟?`)) {
+    state.prestigeCores += coresGain;
+    state.crystals = new BigVal(0); state.sector = 1; state.wave = 1;
+    for (const k in state.upgrades) state.upgrades[k].level = 0;
+    for (const k in state.boosters) if (!state.boosters[k].instant) state.boosters[k].active = 0;
+    spawnEnemy(true); checkAchievements(); updateUI(); renderPrestige(); saveGame();
+    showToast(`Перерождение! +${coresGain} 🌟`);
+  }
+}
+
+function resetGame() {
+  if (confirm('Точно сбросить абсолютно весь прогресс?')) { localStorage.removeItem(SAVE_KEY); location.reload(); }
+}
+
+function switchTab(tabId, btn) {
+  activeTab = tabId;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  ['upg', 'lab', 'bst', 'ach', 'prs'].forEach(id => {
+    document.getElementById('panel-' + id).classList.toggle('hidden', id !== tabId);
+  });
+  document.getElementById('buyModeBar').classList.toggle('hidden', tabId === 'ach' || tabId === 'prs');
+  if (tabId === 'upg') refreshUpgradesDOM();
+  if (tabId === 'lab') refreshResearchDOM();
+  if (tabId === 'bst') refreshBoostersDOM();
+  if (tabId === 'ach') renderAchievements();
+  if (tabId === 'prs') renderPrestige();
+}
+
+function spawnFloatingText(x, y, text, isCrit = false) {
+  const f = document.createElement('div');
+  f.className = 'float-text' + (isCrit ? ' crit' : '');
+  f.textContent = text; f.style.left = x + 'px'; f.style.top = y + 'px';
+  area.appendChild(f);
+  setTimeout(() => f.remove(), 750);
+}
+
+function spawnSparks(x, y, count = 5) {
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark'; s.style.left = x + 'px'; s.style.top = y + 'px';
+    const a = Math.random() * Math.PI * 2; const d = 20 + Math.random() * 40;
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px');
+    s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    s.style.background = ['#6ee7ff', '#7fffd4', '#ffd700', '#ff6b81'][Math.floor(Math.random() * 4)];
+    area.appendChild(s);
+    setTimeout(() => s.remove(), 600);
+  }
+}
+
+function handleTap(clientX, clientY) {
+  let dmg = getClickDamage();
+  const isCrit = Math.random() * 100 < getCritChance();
+  if (isCrit) dmg = dmg.mul(getCritMult());
+
+  state.totalClicks++;
+  const rect = area.getBoundingClientRect();
+  const x = clientX - rect.left; const y = clientY - rect.top;
+
+  if (targetGroup) {
+    targetGroup.scale.set(0.84, 0.84, 0.84);
+    targetGroup.rotation.y += 0.12;
+  }
+  playTone(isCrit ? 580 : 310 + Math.random() * 50, 'sine', 0.05, isCrit ? 0.09 : 0.04);
+  dealDamage(dmg, x, y, isCrit);
+  updateUI();
+}
+
+area.addEventListener('pointerdown', (e) => {
+  if (e.target.classList.contains('meteor')) return;
+  e.preventDefault();
+  handleTap(e.clientX, e.clientY);
+});
+
+const toastEl = document.getElementById('toast');
+let tTimer;
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  clearTimeout(tTimer);
+  tTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+}
+
+// Пасхалки и Админ Панель
+let adminTapCount = 0;
+let adminTapTimer = null;
+function adminTripleTap(e) {
+  adminTapCount++;
+  clearTimeout(adminTapTimer);
+  adminTapTimer = setTimeout(() => { adminTapCount = 0; }, 1000);
+  if (adminTapCount >= 3) {
+    adminTapCount = 0;
+    document.getElementById('adminModal').classList.remove('hidden');
+    playTone(950, 'triangle', 0.2, 0.15);
+  }
+}
+function closeAdminModal() { document.getElementById('adminModal').classList.add('hidden'); }
+function adminAddCrystals() {
+  state.crystals = state.crystals.add(1e6);
+  state.lifetimeEarned = state.lifetimeEarned.add(1e6);
+  showToast('👑 Админ: добавлено 1,000,000 кристаллов!');
+  updateUI(); closeAdminModal();
+}
+function adminSkipBoss() {
+  onEnemyDefeated();
+  showToast('👑 Админ: волна/босс пропущены!');
+  updateUI(); closeAdminModal();
+}
+function adminGodMode() {
+  state.adminGodMultiplier = (state.adminGodMultiplier || 1) * 100;
+  showToast(`👑 Админ: урон увеличен в 100 раз! (x${state.adminGodMultiplier})`);
+  updateUI(); closeAdminModal();
+}
+
+function checkSecretEasterEgg() {
+  showToast('👽 Пасхалка: Привет от разработчика! Ты нашел секретный бафф!');
+  state.crystals = state.crystals.add(5000);
+  updateUI();
+}
+
+// Игровой цикл DPS
+setInterval(() => {
+  const dps = getAutoDps();
+  if (dps.m > 0) dealDamage(dps.div(10), null, null, false);
+
+  if (state.wave === 10) {
+    state.bossTimer -= 0.1;
+    if (state.bossTimer <= 0) {
+      showToast('⏳ Время вышло! Босс восстановил щиты.');
+      spawnEnemy(true);
+    }
+  }
+
+  for (const k in state.boosters) {
+    if (!state.boosters[k].instant && state.boosters[k].active > 0) {
+      state.boosters[k].active = Math.max(0, state.boosters[k].active - 0.1);
+    }
+  }
+  updateUI();
+}, 100);
+
+// Несколько видов автокликеров с разной анимацией
+let autoCursors = { tier1: null, tier2: null, tier3: null };
+let autoAccumulators = { tier1: 0, tier2: 0, tier3: 0 };
+let lastAutoTime = Date.now();
+
+setInterval(() => {
+  const now = Date.now();
+  const dt = (now - lastAutoTime) / 1000;
+  lastAutoTime = now;
+
+  const configs = [
+    { key: 'autoclick1', emoji: '🛸', name: 'tier1' },
+    { key: 'autoclick2', emoji: '🐝', name: 'tier2' },
+    { key: 'autoclick3', emoji: '⚡', name: 'tier3' }
+  ];
+
+  configs.forEach(cfg => {
+    const upg = state.upgrades[cfg.key];
+    const lvl = upg ? upg.level : 0;
+    if (lvl <= 0) {
+      if (autoCursors[cfg.name]) { autoCursors[cfg.name].remove(); autoCursors[cfg.name] = null; }
+      return;
+    }
+
+    if (!autoCursors[cfg.name]) {
+      const el = document.createElement('div');
+      el.className = 'auto-cursor';
+      el.textContent = cfg.emoji;
+      area.appendChild(el);
+      autoCursors[cfg.name] = el;
+    }
+
+    const speed = upg.value * lvl;
+    autoAccumulators[cfg.name] += speed * dt;
+
+    if (autoAccumulators[cfg.name] >= 1) {
+      const hits = Math.floor(autoAccumulators[cfg.name]);
+      autoAccumulators[cfg.name] -= hits;
+
+      const rect = area.getBoundingClientRect();
+      const tapX = rect.width / 2 + (Math.random() - 0.5) * 80;
+      const tapY = rect.height / 2 + (Math.random() - 0.5) * 80;
+
+      const cursorEl = autoCursors[cfg.name];
+      cursorEl.style.left = tapX + 'px';
+      cursorEl.style.top = tapY + 'px';
+      cursorEl.classList.add('tap');
+      setTimeout(() => { if (cursorEl) cursorEl.classList.remove('tap'); }, 80);
+
+      let dmg = getClickDamage();
+      const isCrit = Math.random() * 100 < getCritChance();
+      if (isCrit) dmg = dmg.mul(getCritMult());
+      const totalDmg = dmg.mul(hits);
+
+      state.totalClicks += hits;
+      if (targetGroup) targetGroup.scale.set(0.92, 0.92, 0.92);
+      dealDamage(totalDmg, tapX, tapY - 15, isCrit);
+    }
+  });
+}, 50);
+
+setInterval(saveGame, 5000);
+window.addEventListener('beforeunload', saveGame);
+
+(function () {
+  let starsHtml = '';
+  for (let i = 0; i < 50; i++) {
+    const size = (Math.random() * 2 + 0.8).toFixed(1);
+    starsHtml += `<div class="star" style="width:${size}px;height:${size}px;left:${(Math.random()*100).toFixed(1)}%;top:${(Math.random()*100).toFixed(1)}%;animation-delay:${(Math.random()*3).toFixed(2)}s"></div>`;
+  }
+  document.getElementById('stars').innerHTML = starsHtml;
+})();
+
+buildUpgradesDOM();
+buildResearchDOM();
+buildBoostersDOM();
+init3D();
+updateEnemyVisuals();
+checkAchievements();
+updateUI();
+renderAchievements();
+renderPrestige();
+</script>
+</body>
+</html>
